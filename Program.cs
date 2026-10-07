@@ -2,9 +2,11 @@
 
 Vec3 RayColor(Ray r)
 {
-    if (HitSphere(new Vec3(0, 0, -1), 0.5, r))
+    var t = HitSphere(new Vec3(0, 0, -1), 0.5, r);
+    if (t > 0.0)
     {
-        return new Vec3(1, 0, 0);
+        Vec3 N = Vec3.UnitVector(r.At(t) - new Vec3(0, 0, -1));
+        return 0.5 * new Vec3(N.x()+1, N.y()+1, N.z()+1);
     }
 
     Vec3 unit_direction = Vec3.UnitVector(r.Direction());   
@@ -32,7 +34,7 @@ var pixel_delta_v = viewport_v/image_height;
 var viewport_upper_left = camera_center - new Vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
 var pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
-bool HitSphere(Vec3 center, double radius, Ray ray)
+double HitSphere(Vec3 center, double radius, Ray ray)
 {
     Vec3 oc = center - ray.Origin();
 
@@ -42,7 +44,12 @@ bool HitSphere(Vec3 center, double radius, Ray ray)
 
     double discriminant = b * b - 4 * a * c;
 
-    return discriminant >= 0;
+    
+    if (discriminant < 0) {
+        return -1.0;
+    } else {
+        return (-b - Math.Sqrt(discriminant) ) / (2.0*a);
+    }
 }
 
 // Write the PPM header.
@@ -58,7 +65,7 @@ for (int j = 0; j < image_height; j++)
     {
         var pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
         var ray_direction = pixel_center - camera_center;
-        Ray r = new Ray(pixel_center, ray_direction);
+        Ray r = new Ray(camera_center, ray_direction);
 
         var pixelColor = RayColor(r);
         Color.WriteColor(output, pixelColor);

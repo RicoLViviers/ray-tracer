@@ -17,7 +17,7 @@ public class Ray
     public Vec3 Origin() { return orig; }
     public Vec3 Direction() { return dir; }
 
-    Vec3 at(double t)
+    public Vec3 At(double t)
     {
         return orig + t*dir;
     }
