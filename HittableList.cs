@@ -23,17 +23,19 @@ public class HittableList : Hittable
 
     public override bool Hit(
         Ray r,
-        double rayTMin,
-        double rayTMax,
+        Interval rayT,
         HitRecord rec)
     {
         HitRecord tempRec = new();
         bool hitAnything = false;
-        double closestSoFar = rayTMax;
+        double closestSoFar = rayT.Max;
 
         foreach (Hittable obj in Objects)
         {
-            if (obj.Hit(r, rayTMin, closestSoFar, tempRec))
+            if (obj.Hit(
+                r,
+                new Interval(rayT.Min, closestSoFar),
+                tempRec))
             {
                 hitAnything = true;
                 closestSoFar = tempRec.T;
@@ -41,6 +43,7 @@ public class HittableList : Hittable
                 rec.P = tempRec.P;
                 rec.Normal = tempRec.Normal;
                 rec.T = tempRec.T;
+                rec.front_face = tempRec.front_face;
             }
         }
 

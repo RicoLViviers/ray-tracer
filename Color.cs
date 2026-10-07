@@ -9,10 +9,11 @@ public class Color
         double g = pixelColor.y();
         double b = pixelColor.z();
 
-        // Translate the [0,1] component values to the byte range [0,255].
-        int rByte = (int)(255.999 * r);
-        int gByte = (int)(255.999 * g);
-        int bByte = (int)(255.999 * b);
+        // Translate the [0,1] component values to the byte range [0,255].\
+        Interval intensity = new(0.000, 0.999);
+        int rByte = (int)(256 * intensity.Clamp(r));
+        int gByte = (int)(256 * intensity.Clamp(g));
+        int bByte = (int)(256 * intensity.Clamp(b));
 
         // Write out the pixel color components.
         output.WriteLine($"{rByte} {gByte} {bByte}");

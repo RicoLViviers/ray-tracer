@@ -14,5 +14,5 @@ public class HitRecord
 
 public abstract class Hittable
 {
-    public abstract bool Hit(Ray r, double rayTMin, double rayTMax, HitRecord rec);
+    public abstract bool Hit(Ray r, Interval rayT, HitRecord rec);
 }
