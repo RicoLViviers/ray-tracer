@@ -1,12 +1,12 @@
 ﻿using StreamWriter output = new("image.ppm");
 
-Vec3 RayColor(Ray r)
+
+Vec3 RayColor(Ray r, HittableList world)
 {
-    var t = HitSphere(new Vec3(0, 0, -1), 0.5, r);
-    if (t > 0.0)
+    HitRecord rec = new();
+    if (world.Hit(r, 0, RTweekend.Infinity, rec))
     {
-        Vec3 N = Vec3.UnitVector(r.At(t) - new Vec3(0, 0, -1));
-        return 0.5 * new Vec3(N.x()+1, N.y()+1, N.z()+1);
+        return 0.5 * (rec.Normal + new Vec3(1, 1, 1));
     }
 
     Vec3 unit_direction = Vec3.UnitVector(r.Direction());   
@@ -19,6 +19,11 @@ int image_width = 400;
 
 int image_height = (int)(image_width/aspect_ratio);
 image_height = (image_height < 1) ? 1 : image_height;
+
+HittableList world = new();
+
+world.Add(new Sphere(new Vec3(0, 0, -1), 0.5));
+world.Add(new Sphere(new Vec3(0, -100.5, -1), 100));
 
 var focal_length = 1.0;
 var viewport_height = 2.0;
@@ -34,30 +39,12 @@ var pixel_delta_v = viewport_v/image_height;
 var viewport_upper_left = camera_center - new Vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
 var pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
-double HitSphere(Vec3 center, double radius, Ray ray)
-{
-    Vec3 oc = center - ray.Origin();
-
-    double a = Vec3.Dot(ray.Direction(), ray.Direction());
-    double b = -2.0 * Vec3.Dot(ray.Direction(), oc);
-    double c = Vec3.Dot(oc, oc) - radius * radius;
-
-    double discriminant = b * b - 4 * a * c;
-
-    
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (-b - Math.Sqrt(discriminant) ) / (2.0*a);
-    }
-}
-
 // Write the PPM header.
 output.WriteLine("P3");
 output.WriteLine($"{image_width} {image_height}");
 output.WriteLine("255");
 
-for (int j = 0; j < image_height; j++)
+for (int j = image_height; j > 0; j--)
 {
     Console.WriteLine($"Scanlines remaining {image_height - j}");
 
@@ -67,7 +54,7 @@ for (int j = 0; j < image_height; j++)
         var ray_direction = pixel_center - camera_center;
         Ray r = new Ray(camera_center, ray_direction);
 
-        var pixelColor = RayColor(r);
+        var pixelColor = RayColor(r, world);
         Color.WriteColor(output, pixelColor);
     }
 }
