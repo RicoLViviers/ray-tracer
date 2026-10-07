@@ -1,0 +1,20 @@
+using System;
+
+public class Color
+{
+    // Writes a color to the output stream as RGB values in the range [0, 255].
+    public static void WriteColor(TextWriter output, Vec3 pixelColor)
+    {
+        double r = pixelColor.x();
+        double g = pixelColor.y();
+        double b = pixelColor.z();
+
+        // Translate the [0,1] component values to the byte range [0,255].
+        int rByte = (int)(255.999 * r);
+        int gByte = (int)(255.999 * g);
+        int bByte = (int)(255.999 * b);
+
+        // Write out the pixel color components.
+        output.WriteLine($"{rByte} {gByte} {bByte}");
+    }
+}
