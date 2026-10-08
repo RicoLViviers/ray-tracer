@@ -5,6 +5,7 @@ public class Camera
     public double aspect_ratio = 1.0;  // Ratio of image width over height
     public int image_width = 100;      // Rendered image width in pixels
     public int samples_per_pixel = 10; // Number of random samples per pixel
+    public int max_depth = 10;
 
     private int image_height;          // Rendered image height
     private double pixel_samples_scale;// Color scale factor for accumulated samples
@@ -39,7 +40,7 @@ public class Camera
                 for (int sample = 0; sample < samples_per_pixel; sample++)
                 {
                     Ray r = GetRay(i, j);
-                    pixel_color += RayColor(r, world);
+                    pixel_color += RayColor(r, max_depth, world);
                 }
 
                 // Average all samples and write the resulting pixel.
@@ -118,18 +119,22 @@ public class Camera
             0);
     }
 
-    private Vec3 RayColor(Ray r, Hittable world)
+    private Vec3 RayColor(Ray r, int depth, Hittable world)
     {
+        if (depth <= 0)
+            return new Vec3(0, 0, 0);
+
         HitRecord rec = new();
 
         // Check whether the ray hits an object in the world.
         if (world.Hit(
             r,
-            new Interval(0, double.PositiveInfinity),
+            new Interval(0.001, double.PositiveInfinity),
             rec))
         {
             // Convert the surface normal into a visible RGB color.
-            return 0.5 * (rec.Normal + new Vec3(1, 1, 1));
+            Vec3 direction = Vec3.RandomOnHemisphere(rec.Normal);
+            return 0.5 * RayColor(new Ray(rec.P, direction), depth-1, world);
         }
 
         // If nothing was hit, create the sky gradient.

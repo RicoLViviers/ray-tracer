@@ -70,6 +70,16 @@ public class Vec3
              + e[2] * e[2];
     }
 
+    public static Vec3 Random()
+    {
+        return new Vec3(RTweekend.RandomDouble(), RTweekend.RandomDouble(), RTweekend.RandomDouble());
+    }
+
+    public static Vec3 Random(double min, double max)
+    {
+        return new Vec3(RTweekend.RandomDouble(min, max), RTweekend.RandomDouble(min, max), RTweekend.RandomDouble(min, max));
+    }
+
     // Adds two vectors.
     public static Vec3 operator +(Vec3 u, Vec3 v)
     {
@@ -143,6 +153,25 @@ public class Vec3
     public static Vec3 UnitVector(Vec3 v)
     {
         return v / v.Length();
+    }
+
+
+    public static Vec3 RandomUnitVector() {
+        while (true) {
+            var p = Vec3.Random(-1,1);
+            var lensq = p.LengthSquared();
+            if (lensq <= 1)
+                return p / Math.Sqrt(lensq);
+        }
+    }
+
+
+    public static Vec3 RandomOnHemisphere(Vec3 normal) {
+        Vec3 onUnitSphere = RandomUnitVector();
+        if (Vec3.Dot(onUnitSphere, normal) > 0.0)
+            return onUnitSphere;
+        else
+            return -onUnitSphere;
     }
 
     public override string ToString()
